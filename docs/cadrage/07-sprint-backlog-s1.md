@@ -94,4 +94,4 @@ Saisie texte (US-05) ┼→ Génération LLM (US-06)
 | Les dependances sont visibles et realistes | ✅ Oui | Arbre ASCII + explication logique |
 | La DoD est complete et verifiable | ✅ Oui | 6 criteres checkables (tests, lint, demo, retro) |
 | La perturbation P1 est documentee avec impact + decision | ✅ Oui | Contexte, impact nul, decision SHOULD-HAVE, livrables, SP 0 |
-| Le document a ete relu par l'equipe | ✅ Partiel | A valider collectivement avant la remise |
+| Le document a ete relu par l'equipe | ✅ Partiel | l'equipe n'est pas au complet a ce jour |
