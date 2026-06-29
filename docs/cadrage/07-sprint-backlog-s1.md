@@ -35,8 +35,6 @@ Projet EduTutor IA · Edition 2026 · Semaine immersive Scrum
 
 **Total : 18 SP** (capacite estimee : 24 SP pour 4 developpeurs sur 1,5 jour — marge de 6 SP pour les imprevus)
 
----
-
 ## 3. Tracabilite MVP (F1-F6)
 
 | Feature | US couvrantes | Statut |
@@ -50,11 +48,8 @@ Projet EduTutor IA · Edition 2026 · Semaine immersive Scrum
 
 Toutes les features MVP (F1-F6) sont couvertes par au moins une US du sprint.
 
----
-
 ## 4. Dependances et ordonnancement
 
-```
 Inscription (US-01)
   → Validation email (US-02)
   → Connexion (US-03)
@@ -74,8 +69,6 @@ Saisie texte (US-05) ┼→ Génération LLM (US-06)
 - On peut faire une démo en quelques minutes du parcours complet (inscription → upload → quiz → score → historique)
 - Retrospective de 15 min avant la perturbation P2
 
----
-
 ## Perturbations
 
 ### P1 — Nouvelle persona enseignante (Mme Lefevre)
@@ -90,8 +83,6 @@ Saisie texte (US-05) ┼→ Génération LLM (US-06)
   - Product Backlog actualise : 5 US enseignant (compte enseignant, import CSV, dashboard, alertes, messagerie), priorisation MoSCoW
   - Note de decision : cible enseignante = **SHOULD-HAVE** pour R1
 - **SP impactes** : 0 (on ne modifie pas le scope du Sprint 1)
-
----
 
 ## Grille d'auto-evaluation
 
