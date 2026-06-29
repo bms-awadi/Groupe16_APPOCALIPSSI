@@ -54,3 +54,19 @@ Saisie texte (US-05) ┼→ Génération LLM (US-06)
 - Les features F1-F6 fonctionnent et sont testées
 - On peut faire une démo en quelques minutes du parcours complet (inscription → upload → quiz → score → historique)
 - Retrospective de 15 min avant la perturbation P2
+
+## Perturbations
+
+### P1 —  Nouvelle persona enseignante (Mme Lefèvre)
+
+- **Contexte** : Le sponsor demande d'intégrer Mme Sophie Lefèvre (enseignante BTS Comm, Lyon, 28 élèves) comme cible secondaire.
+- **Impact sur le sprint** : Aucun — le périmètre F1-F6 reste inchangé. La persona enseignante est classée **SHOULD-HAVE** pour la Release 1, pas MUST.
+- **Décision** : On garde le focus sur le MVP étudiant (F1-F6). Les US enseignant (US-26 à US-30) sont planifiées pour le Sprint 2 si le temps le permet.
+- **Livrables produits** :
+  - Persona Mme Lefèvre (6 dimensions : âge, rôle, objectifs, besoins, frustrations, contraintes, expérience tech, scénario typique)
+  - Customer Journey (5 étapes : découverte → adoption → utilisation hebdomadaire → intervention → satisfaction)
+  - Story Map mise à jour (parcours étudiant + parcours enseignant sur 2 releases)
+  - Product Backlog actualisé : 5 US enseignant (compte enseignant, import CSV élèves, dashboard classe, alertes inactifs, messagerie), priorisation MoSCoW
+  - Note de décision : cible enseignante = **SHOULD-HAVE** pour la Release 1 (pas MUST car MVP étudiant prioritaire, pas COULD car valeur B2B réelle)
+- **SP impactés** : 0 (on ne modifie pas le scope du Sprint 1).
+
