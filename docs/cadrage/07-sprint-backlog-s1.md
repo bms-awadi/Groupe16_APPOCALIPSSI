@@ -52,7 +52,5 @@ Saisie texte (US-05) ┼→ Génération LLM (US-06)
 
 - Toutes les US ci-dessus sont en "Done"
 - Les features F1-F6 fonctionnent et sont testées
-- `make test` passe sans régression
-- `make lint` passe
-- On peut faire une démo en 2 min du parcours complet (inscription → upload → quiz → score → historique)
+- On peut faire une démo en quelques minutes du parcours complet (inscription → upload → quiz → score → historique)
 - Retrospective de 15 min avant la perturbation P2
