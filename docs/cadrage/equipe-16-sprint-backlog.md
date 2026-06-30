@@ -86,3 +86,74 @@ L'ordonnancement complet est defini dans le Product Backlog sur les sprints S1 a
 | La DoD est complete et verifiable | ✅ Oui | 6 criteres checkables (tests, lint, demo, retro) |
 | La perturbation P1 est documentee avec impact + decision | ✅ Oui | Contexte, impact nul, decision SHOULD-HAVE, livrables, SP 0 |
 | Le document a ete relu par l'equipe | ✅ Partiel | l'equipe n'est pas au complet a ce jour |
+
+
+## Sprint 2
+
+### 2. Engagement de l'equipe (Scope du Sprint)
+
+| ID | User Story | SP | Binome |
+|----|------------|----|--------|
+| US-03 | En tant qu'etudiant·e, je veux generer un quiz de 10 QCM en moins de 60 s a partir de mon cours, afin de reviser rapidement un chapitre. | 8 | C — Quiz (Noah + Taise) |
+
+**Total : 8 SP** (capacite estimee : 14-16 SP pour l'equipe sur 1,5 jour)
+
+Les membres restants (Badreddine, Rania, Amani, Clement, Awadi) assurent le support qualite sur F1-F2 (tests de non-regression, correction de bugs) et la preparation technique pour S3.
+
+### 3. Tracabilite MVP (F1-F6)
+
+| Feature | US couvrantes | Statut |
+|---------|---------------|--------|
+| F1 — Auth complete | US-01 | Done (S1) |
+| F2 — Upload cours | US-02 | Done (S1) |
+| F3 — Generation LLM | US-03 | Dans le sprint |
+| F4 — Passage + correction | US-04 | Sprint 3 |
+| F5 — Score /10 | US-05 | Sprint 3 |
+| F6 — Historique | US-06 | Sprint 4 |
+
+F1 et F2 sont livrees et testees. F3 est le focus du Sprint 2.
+
+### 4. Dependances et ordonnancement
+
+US-03 (Generation LLM) depend de US-02 (Upload) : il faut un cours uploade pour generer un quiz.
+
+    S1 : US-01 (Auth)  ||  US-02 (Upload)  [DONE]
+                         |
+    S2 : US-03 (Generation LLM)  [EN COURS]
+                         |
+    S3 : US-04 (Passage) + US-05 (Score)
+                         |
+    S4 : US-06 (Historique)
+
+### Quand est-ce qu'on considère le sprint fini ?
+
+- US-03 est en "Done" (genere 10 QCM en < 60 s, tests OK)
+- La feature F3 (Generation LLM) fonctionne et est testee
+- On peut faire une demo du parcours S1-S2 : inscription → upload → generation de quiz
+- F1 et F2 restent stables (pas de regression)
+- Retrospective de 15 min
+
+### Perturbations
+
+Aucune perturbation declaree pour le Sprint 2. Le focus reste sur le MVP etudiant F1-F6.
+
+### Grille d'auto-evaluation Sprint 2
+
+| Critere qualite | Auto-evaluation | Commentaire |
+|-------------------|-----------------|-------------|
+| L'objectif du sprint est clair et mesurable | ✅ Oui | Generation de 10 QCM en < 60 s (F3, sur gpu), livrable mardi soir |
+| Toutes les US du Product Backlog priorisees sont dans le sprint | ✅ Oui | 1 US (US-03), 8 SP, conforme au PB S2 |
+| Chaque US a un SP, un binome et une tracabilite F1-F6 | ✅ Oui | IDs alignes avec le Product Backlog officiel |
+| Les dependances sont visibles et realistes | ✅ Oui | Arbre ASCII + dependance US-03 → US-02 |
+| La DoD est complete et verifiable | ✅ Oui | 5 criteres checkables (gen < 60 s, tests, demo S1-S2, pas de regression, retro) |
+| Le document a ete relu par l'equipe | ✅ Partiel | l'equipe n'est pas au complet a ce jour |
+
+---
+
+## Sprint 3
+
+*A completer mercredi*
+
+## Sprint 4
+
+*A completer jeudi*
