@@ -127,7 +127,7 @@ US-03 (Generation LLM) depend de US-02 (Upload) : il faut un cours uploade pour 
 
 ### Quand est-ce qu'on considère le sprint fini ?
 
-- US-03 est en "Done" (genere 10 QCM en < 60 s, tests OK)
+- US-03 est en "Done" (genere 10 QCM en < 60 s sur gpu, tests OK)
 - La feature F3 (Generation LLM) fonctionne et est testee
 - On peut faire une demo du parcours S1-S2 : inscription → upload → generation de quiz
 - F1 et F2 restent stables (pas de regression)
