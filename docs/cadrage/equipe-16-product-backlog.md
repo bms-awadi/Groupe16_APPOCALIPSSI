@@ -21,7 +21,7 @@ Projet EduTutor IA · Édition 2026 · Semaine immersive Scrum
 
 EduTutor IA est une plateforme brownfield : le code F1–F6 existe, tourne en local, mais n'est ni testé, ni stabilisé, ni conforme RGPD. Les bugs connus (PDF corrompu → 500 silencieux, timeout LLM 600 s, absence de rate limiting, prompt injection) constituent la dette technique prioritaire. Les stories MUST ne sont pas des fonctionnalités nouvelles — ce sont des engagements de qualité, de fiabilité et de couverture de tests sur des features existantes.
 
-La perturbation J1 (lundi matin, cadrage) a introduit Mme Sophie Lefèvre comme cible secondaire. Ses stories ne sont pas MUST : la priorité R1 reste le parcours étudiant complet (F1–F6) livré à mercredi 17h45.
+La perturbation J1 (lundi matin, cadrage) a introduit Mme Sophie Lefèvre comme cible secondaire. Une de ses stories (US-21) a été repriorisée en MUST par décision d'équipe : la priorité R1 reste le parcours étudiant complet (F1–F6), livré à mercredi 17h45, complété par une visibilité enseignante minimale (US-21) jugée nécessaire dès cette première release.
 
 ---
 
@@ -43,16 +43,17 @@ La perturbation J1 (lundi matin, cadrage) a introduit Mme Sophie Lefèvre comme 
 
 | ID    | User Story                                                                                                                                            | Persona     | SP | Sprint |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | -- | ------ |
-| US-01 | En tant qu'étudiant·e, je veux créer un compte avec email et mot de passe, afin de sauvegarder mes quiz et y revenir quand je veux.                | Léa Martin | 3  | S1     |
-| US-02 | En tant qu'étudiant·e, je veux uploader un PDF (≤ 5 Mo) ou saisir un texte de cours (≥ 200 car.), afin de ne pas recopier mon support à la main. | Léa Martin | 5  | S1     |
-| US-03 | En tant qu'étudiant·e, je veux générer un quiz de 10 QCM en moins de 60 s à partir de mon cours, afin de réviser rapidement un chapitre.        | Léa Martin | 8  | S2     |
-| US-04 | En tant qu'étudiant·e, je veux soumettre mes réponses et obtenir une correction automatique, afin de savoir où je me situe sans attendre un prof. | Léa Martin | 3  | S3     |
-| US-05 | En tant qu'étudiant·e, je veux voir mon score /10 et le détail des bonnes et mauvaises réponses, afin de mesurer ma progression sur ce chapitre.  | Léa Martin | 3  | S3     |
-| US-06 | En tant qu'étudiant·e, je veux consulter l'historique de mes quiz passés, afin de suivre mon évolution dans le temps.                             | Léa Martin | 3  | S4     |
+| US-01 | En tant qu'étudiant·e, je veux créer un compte avec email et mot de passe, afin de sauvegarder mes quiz et y revenir quand je veux.                   | Léa Martin | 3  | S1     |
+| US-02 | En tant qu'étudiant·e, je veux uploader un PDF (≤ 5 Mo) ou saisir un texte de cours (≥ 200 car.), afin de ne pas recopier mon support à la main.      | Léa Martin | 5  | S1     |
+| US-03 | En tant qu'étudiant·e, je veux générer un quiz de 10 QCM en moins de 60 s à partir de mon cours, afin de réviser rapidement un chapitre.              | Léa Martin | 8  | S2     |
+| US-04 | En tant qu'étudiant·e, je veux soumettre mes réponses et obtenir une correction automatique, afin de savoir où je me situe sans attendre un prof.     | Léa Martin | 3  | S3     |
+| US-05 | En tant qu'étudiant·e, je veux voir mon score /10 et le détail des bonnes et mauvaises réponses, afin de mesurer ma progression sur ce chapitre.      | Léa Martin | 3  | S3     |
+| US-06 | En tant qu'étudiant·e, je veux consulter l'historique de mes quiz passés, afin de suivre mon évolution dans le temps.                                 | Léa Martin | 3  | S4     |
+| US-21 | En tant qu'enseignante, je veux voir la progression de chaque étudiant·e (score moyen, dernier quiz), afin de cibler mes interventions pédagogiques.  | Mme Lefèvre | 5  | S4     |
 
-Total MUST : 25 SP
+Total MUST : 30 SP
 
-### Traçabilité F1–F6
+### Traçabilité F1–F7
 
 | Feature            | US    | Brownfield — état actuel                                                                              |
 | ------------------ | ----- | ------------------------------------------------------------------------------------------------------- |
@@ -62,6 +63,7 @@ Total MUST : 25 SP
 | F4 — Passage      | US-04 | Soumission des réponses fonctionnelle. Pas de tests d'intégration sur la persistance.                 |
 | F5 — Score        | US-05 | Affichage score et correction fonctionnels. Distinction visuelle bonne/mauvaise réponse non testée.   |
 | F6 — Historique   | US-06 | Endpoint /api/quizzes/ existe. Tri par date décroissante non garanti. Pagination non testée.          |
+| F7 — Suivi enseignant | US-21 | Aucune implémentation existante. Nécessite : modèle de droits enseignant/étudiant, vue agrégée des scores par classe. Développement neuf, pas de dette à corriger. |
 
 ### Critères d'acceptation — MUST
 
@@ -105,6 +107,12 @@ Note : timeout actuel = 600 s, sans message d'erreur. L'ADR-01 (mardi matin) dé
 - When : il accède à /history
 - Then : GET /api/quizzes/ retourne une liste paginée triée par date décroissante, chaque entrée affiche le titre du cours, la date, le score /10 et un lien "Refaire"
 
+#### US-21 — Voir la progression de ses étudiants
+
+- Given : enseignante authentifiée sur /teacher
+- When : la page se charge
+- Then : tableau affiché avec nom, score moyen, dernier quiz passé, nombre de sessions — accès refusé si compte non-enseignant
+
 ---
 
 ## SHOULD — Release 2, à livrer jeudi 3 juillet 17h
@@ -117,7 +125,7 @@ Note : timeout actuel = 600 s, sans message d'erreur. L'ADR-01 (mardi matin) dé
 | US-10 | En tant qu'étudiant·e, je veux activer un timer optionnel par question (10–30 s), afin de simuler les conditions d'examen.                                 | Léa Martin  | 3  | S7              |
 | US-11 | En tant qu'étudiant·e, je veux un dashboard de progression par chapitre, afin de savoir précisément où j'ai des lacunes avant les partiels.              | Léa Martin  | 5  | si dispo S7     |
 | US-12 | En tant qu'utilisateur·trice, je veux exporter mes données (JSON + CSV, Art. 15 RGPD), afin d'exercer mon droit d'accès sans contacter le support.         | Tous         | 5  | S5              |
-| US-22 | En tant qu'enseignante, je veux voir la progression de chaque étudiant·e (score moyen, dernier quiz, nombre de sessions), afin de cibler mes interventions. | Mme Lefèvre | 5  | S6              |
+| US-22 | En tant qu'enseignante, je veux recevoir une alerte quand un·e étudiant·e décroche (score moyen < 5/10 sur ses 3 derniers quiz ou inactivité de 14 jours), afin d'intervenir avant qu'il/elle abandonne ses révisions. | Mme Lefèvre | 5  | S6              |
 
 Total SHOULD : 31 SP
 
@@ -147,9 +155,9 @@ Toggle ON/OFF sur la page quiz. Si actif : countdown configurable de 10 à 30 s 
 
 Bouton "Exporter mes données" dans les paramètres du compte. Archive ZIP contenant quiz.json, reponses.csv, et audit.json (dates d'accès).
 
-#### US-22 — Suivi classe enseignante (J1)
+#### US-22 — Alerte décrochage
 
-/teacher affiche la liste des étudiants avec score moyen, dernier quiz passé et nombre total de sessions. Accessible uniquement au compte enseignant.
+Enseignante authentifiée sur /teacher avec des étudiants suivis. When : un étudiant passe sous le seuil ou devient inactif. Then : un badge "à risque" apparaît à côté de son nom dans la liste
 
 ---
 
@@ -162,10 +170,9 @@ Bouton "Exporter mes données" dans les paramètres du compte. Archive ZIP conte
 | US-15 | En tant qu'enseignant·e, je veux générer des questions ouvertes corrigées par le LLM, afin de varier les modes d'évaluation.                                   | Mme Lefèvre | 13 | R2 si dispo      |
 | US-16 | En tant qu'étudiant·e, je veux identifier mes lacunes par chapitre (agrégation des questions ratées), afin de planifier mes révisions.                         | Léa Martin  | 8  | R2 si dispo      |
 | US-17 | En tant qu'utilisateur·trice, je veux supprimer mon compte et mes données (Art. 17 RGPD), afin d'exercer mon droit à l'effacement.                               | Tous         | 5  | R2 si dispo      |
-| US-21 | En tant qu'enseignante, je veux voir la progression de mes étudiants depuis l'interface admin, afin d'avoir une visibilité sans développement front spécifique. | Mme Lefèvre | 2  | R1 si dispo (S4) |
-| US-23 | En tant qu'enseignante, je veux envoyer un message d'encouragement à un·e étudiant·e depuis mon interface, afin d'intervenir sans sortir de la plateforme.      | Mme Lefèvre | 5  | R2 si dispo      |
+| US-23 | En tant qu'enseignante, je veux envoyer un message d'encouragement à un·e étudiant·e depuis mon interface, afin d'intervenir sans sortir de la plateforme.     | Mme Lefèvre | 3  | R2 si dispo      |
 
-Total COULD : 46 SP
+Total COULD : 42 SP
 
 ### Critères d'acceptation — COULD (résumés)
 
@@ -189,10 +196,6 @@ Agrégation des questions ratées (< 5/10 sur au moins 2 sessions). Tag "à retr
 
 Bouton "Supprimer mon compte" dans les paramètres. Confirmation en 2 étapes (email + case à cocher). Purge complète des données sous 30 jours. Confirmation écrite envoyée par email.
 
-#### US-21 — Vue progression via /admin (J1 R1)
-
-L'interface Django Admin affiche déjà les modèles Quiz et User. Accorder un accès staff à Mme Lefèvre permet une visibilité sans développement front. 2 SP = configuration + documentation d'utilisation.
-
 #### US-23 — Message enseignant vers étudiant (J1)
 
 Formulaire sur /teacher/student/:id. Envoi par email (Brevo en prod, console.log en développement). Pas d'interface de réception intégrée en R2.
@@ -215,11 +218,11 @@ Total WON'T : 47 SP
 
 | Priorité                     | Stories | SP | Livraison cible                             |
 | ----------------------------- | ------- | -- | ------------------------------------------- |
-| MUST                          | 6       | 25 | Release 1 — mercredi 17h45                 |
+| MUST                          | 7       | 30 | Release 1 — mercredi 17h45                 |
 | SHOULD                        | 7       | 31 | Release 2 — jeudi 17h                      |
-| COULD                         | 7       | 46 | Si capacité disponible                     |
+| COULD                         | 6       | 42 | Si capacité disponible                     |
 | WON'T                         | 3       | 47 | Hors semaine                                |
-| Total engagé (MUST + SHOULD) | 13      | 56 | Vélocité cible : 8 SP/sprint × 7 sprints |
+| Total engagé (MUST + SHOULD) | 14      | 61 | Vélocité cible : 8 SP/sprint × 7 sprints |
 
 ---
 
@@ -227,21 +230,21 @@ Total WON'T : 47 SP
 
 La perturbation J1 a été reçue le lundi matin, pendant la séance de cadrage.
 
-Mme Sophie Lefèvre (42 ans, professeure BTS Communication, 28 étudiants, Lyon 6e) rejoint la story map en tant que persona secondaire et demande une interface enseignante. Elle n'a aucune story MUST — le parcours étudiant F1–F6 reste inchangé pour Release 1.
+Mme Sophie Lefèvre (42 ans, professeure BTS Communication, 28 étudiants, Lyon 6e) rejoint la story map en tant que persona secondaire et demande une interface enseignante. Décision d'équipe : une story enseignante (US-21) est requalifiée en MUST pour garantir une visibilité enseignante dès la Release 1, le reste du parcours étudiant F1–F6 restant inchangé.
 
 | Story J1                                    | Priorité | SP | Justification                                                                     |
 | ------------------------------------------- | --------- | -- | --------------------------------------------------------------------------------- |
-| US-21 — Vue admin progression              | COULD R1  | 2  | /admin Django suffit, 0 développement front — valeur démo forte si dispo en S4 |
-| US-22 — Dashboard classe enseignante       | SHOULD R2 | 5  | Interface dédiée — valeur pédagogique réelle, réalisable en S6–S7          |
-| US-23 — Messagerie enseignant → étudiant | COULD R2  | 5  | Différenciateur fort, mais risque scope creep si intégré trop tôt             |
+| US-21 — Voir la progression de chaque étudiant | MUST R1  | 5  | Visibilité enseignante garantie dès Release 1, sponsor en attente d'une démo fonctionnelle. Page /teacher dédiée, tableau nom/score moyen/dernier quiz/nb sessions. |
+| US-22 — Alerte décrochage étudiant      | SHOULD R2 | 5  | Reformulée depuis le dashboard initial — alerte automatique (score < 5/10 sur 3 derniers quiz ou inactivité 14 j), réalisable en S6        |
+| US-23 — Messagerie enseignant → étudiant | COULD R2  | 3  | Différenciateur fort, mais risque scope creep si intégré trop tôt — réestimée à 3 SP après découpage plus fin            |
 
-Note de décision : la perturbation J1 est documentée et absorbée. Le scope MUST reste à 25 SP. US-22 est classée SHOULD et porte le scope engagé de 51 SP à 56 SP — aligné avec la vélocité cible de 7 sprints à 8 SP.
+Note de décision : la perturbation J1 est documentée et absorbée. Le scope MUST passe de 25 à 30 SP suite à la repriorisation de US-21. Le scope engagé (MUST + SHOULD) passe de 56 à 61 SP, dépassant de 5 SP la vélocité cible (8 SP/sprint × 7 sprints = 56 SP). L'équipe assume ce dépassement et prévoit de sacrifier US-08 (bibliothèque de cours, 5 SP, repasse en COULD) si la capacité S6–S7 s'avère insuffisante.
 
 Raisonnement :
 
-- US-21 est la seule story enseignante envisageable en Release 1 car elle réutilise /admin sans développement front spécifique.
-- US-22 nécessite une page /teacher dédiée, cohérente avec une Release 2 planifiée en Sprint 6–7.
-- US-23 (messagerie) est trop risquée en scope pour une semaine brownfield — classée COULD R2.
+- US-21 est repriorisée en MUST suite à arbitrage d'équipe : le sponsor attend une démonstration concrète de la persona enseignante dès Release 1, justifiant une page /teacher dédiée plutôt qu'un simple accès admin.
+- US-22 est reformulée en mécanisme d'alerte proactive (plutôt qu'un dashboard descriptif), répondant plus directement au besoin exprimé par Mme Lefèvre (« repérer ceux qui décrochent »). Reste cohérente avec une Release 2 en Sprint 6.
+- US-23 (messagerie) demeure la story la plus risquée en scope pour une semaine brownfield — maintenue en COULD R2, avec un effort réestimé à la baisse (3 SP).
 
 ---
 
@@ -274,9 +277,9 @@ Une story est terminée quand :
 | ------------------------------------------------------------------- | ------ | -------- |
 | Chaque story est au format INVEST                                   |        |          |
 | Chaque story a un critère d'acceptation en Given/When/Then         |        |          |
-| Les 6 stories MUST couvrent exactement F1–F6                       |        |          |
+| Les 7 stories MUST couvrent exactement F1–F7                       |        |          |
 | La priorisation MoSCoW est justifiée par les personas              |        |          |
 | La perturbation J1 est intégrée avec impact et décision          |        |          |
 | Les WON'T sont documentés avec une raison explicite                |        |          |
-| Le scope total MUST + SHOULD = 56 SP (vélocité 7 sprints × 8 SP) |        |          |
+| Le scope total MUST + SHOULD = 61 SP, dépassant de 5 SP la vélocité cible (56 SP) — dépassement assumé et documenté |        |          |
 | Le document a été relu par l'équipe                              |        |          |
