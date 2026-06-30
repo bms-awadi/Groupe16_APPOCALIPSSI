@@ -21,52 +21,43 @@ Projet EduTutor IA · Edition 2026 · Semaine immersive Scrum
 
 | ID | User Story | SP | Binome |
 |----|------------|----|--------|
-| US-01 | Finaliser l'inscription par email + tests | 2 | A — Auth (Badreddine + Rania) |
-| US-02 | Finaliser la validation d'email + tests | 1 | A — Auth (Badreddine + Rania) |
-| US-03 | Finaliser la connexion + tests | 1 | A — Auth (Badreddine + Rania) |
-| US-15 | Finaliser le reset mot de passe + tests | 1 | A — Auth (Badreddine + Rania) |
-| US-16 | Page profil (modifier / supprimer compte) | 2 | A — Auth (Badreddine + Rania) |
-| US-04 | Finaliser l'upload PDF (5 Mo) + cas limites | 2 | B — Contenu (Amani + Clement) |
-| US-05 | Finaliser la saisie texte (200 caracteres) | 1 | B — Contenu (Amani + Clement) |
-| US-06 | Ajuster le prompt LLM pour 10 QCM + tests | 3 | C — Quiz (Noah + Taise) |
-| US-07 | Finaliser le passage du quiz interactif | 2 | C — Quiz (Noah + Taise) |
-| US-08 | Finaliser le score /10 et la correction | 1 | D — Resultat (Awadi) |
-| US-09 | Historique des quiz par utilisateur | 2 | D — Resultat (Awadi) |
+| US-01 | En tant qu'etudiant·e, je veux creer un compte avec email et mot de passe, afin de sauvegarder mes quiz et y revenir quand je veux. | 3 | A — Auth (Badreddine + Rania) |
+| US-02 | En tant qu'etudiant·e, je veux uploader un PDF (5 Mo) ou saisir un texte de cours (200 car.), afin de ne pas recopier mon support a la main. | 5 | B — Contenu (Amani + Clement) |
 
-**Total : 18 SP** (capacite estimee : 24 SP pour 4 developpeurs sur 1,5 jour — marge de 6 SP pour les imprevus)
+**Total : 8 SP** (capacite estimee : 14-16 SP pour l'equipe sur 1,5 jour — marge confortable pour les imprevus)
 
 ## 3. Tracabilite MVP (F1-F6)
 
 | Feature | US couvrantes | Statut |
 |---------|---------------|--------|
-| F1 — Auth complete | US-01, 02, 03, 15, 16 | Dans le sprint |
-| F2 — Upload cours | US-04, 05 | Dans le sprint |
-| F3 — Generation LLM | US-06 | Dans le sprint |
-| F4 — Passage + correction | US-07, 08 | Dans le sprint |
-| F5 — Score /10 | US-08 | Dans le sprint |
-| F6 — Historique | US-09 | Dans le sprint |
+| F1 — Auth complete | US-01 | Dans le sprint |
+| F2 — Upload cours | US-02 | Dans le sprint |
+| F3 — Generation LLM | US-03 | Sprint 2 |
+| F4 — Passage + correction | US-04 | Sprint 3 |
+| F5 — Score /10 | US-05 | Sprint 3 |
+| F6 — Historique | US-06 | Sprint 4 |
 
-Toutes les features MVP (F1-F6) sont couvertes par au moins une US du sprint.
+Les features F3-F6 sont planifiees dans les sprints suivants selon le Product Backlog.
 
 ## 4. Dependances et ordonnancement
 
-Inscription (US-01)
-  → Validation email (US-02)
-  → Connexion (US-03)
-  → Reset MDP (US-15)
-  → Profil (US-16)
+US-01 (Auth) et US-02 (Upload) sont independantes et peuvent etre developpees en parallele durant le Sprint 1.
 
-Upload PDF (US-04) ─┐
-Saisie texte (US-05) ┼→ Génération LLM (US-06)
-                     │      → Passage quiz (US-07)
-                     │           → Score (US-08)
-                     │                → Historique (US-09)
+    S1 : US-01 (Auth)  ||  US-02 (Upload)
+                         |
+    S2 : US-03 (Generation LLM)
+                         |
+    S3 : US-04 (Passage) + US-05 (Score)
+                         |
+    S4 : US-06 (Historique)
+
+L'ordonnancement complet est defini dans le Product Backlog sur les sprints S1 a S4.
 
 ## Quand est-ce qu'on considère le sprint fini ?
 
 - Toutes les US ci-dessus sont en "Done"
-- Les features F1-F6 fonctionnent et sont testées
-- On peut faire une démo en quelques minutes du parcours complet (inscription → upload → quiz → score → historique)
+- Les features F1 (Auth) et F2 (Upload) fonctionnent et sont testées
+- On peut faire une démo du parcours S1 : inscription → upload (le reste F3-F6 est pour les sprints suivants)
 - Retrospective de 15 min avant la perturbation P2
 
 ## Perturbations
@@ -89,8 +80,8 @@ Saisie texte (US-05) ┼→ Génération LLM (US-06)
 | Critere qualite | Auto-evaluation | Commentaire |
 |-------------------|-----------------|-------------|
 | L'objectif du sprint est clair et mesurable | ✅ Oui | Parcours F1-F6 complet, livrable mercredi 10h |
-| Toutes les US du Product Backlog priorisees sont dans le sprint | ✅ Oui | 11 US, 18 SP, toutes les features MVP couvertes |
-| Chaque US a un SP, un binome et une tracabilite F1-F6 | ✅ Oui | Tableau detaille + section tracabilite F1-F6 |
+| Toutes les US du Product Backlog priorisees sont dans le sprint | ✅ Oui | 2 US (US-01, US-02), 8 SP, conforme au PB S1 |
+| Chaque US a un SP, un binome et une tracabilite F1-F6 | ✅ Oui | IDs alignes avec le Product Backlog officiel |
 | Les dependances sont visibles et realistes | ✅ Oui | Arbre ASCII + explication logique |
 | La DoD est complete et verifiable | ✅ Oui | 6 criteres checkables (tests, lint, demo, retro) |
 | La perturbation P1 est documentee avec impact + decision | ✅ Oui | Contexte, impact nul, decision SHOULD-HAVE, livrables, SP 0 |
