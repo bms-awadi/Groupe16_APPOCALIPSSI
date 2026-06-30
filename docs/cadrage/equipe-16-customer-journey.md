@@ -1,7 +1,7 @@
 # CUSTOMER JOURNEY MAPS – EduTutor IA
 
 **Sprint:** Cadrage  
-**Version:** v1.0  
+**Version:** v1.1  
 **Date de remise:** 29/06/2026  
 **Statut:** En revue PO  
 **Équipe n°:** 16 
@@ -25,7 +25,7 @@
 ## PARCOURS 2 : MME SOPHIE LEFÈVRE (Enseignant·e - CIBLE SECONDAIRE)
 
 | Étape | Actions | Pensées | Émotion | Frictions | Opportunités |
-|-------|--------------------|---------|-----------|-------------|
+|-------|---------|---------|---------|-----------|---------------|
 | **1. Découverte** | Lit article du Café Pédagogique sur outils IA. Note le nom EduTutor. | "Encore une promesse marketing ? Je veux des exemples concrets pour BTS Communication." | Curieuse, prudente | Pas d'exemples sectoriels (BTS vs lycée vs sup : contextes très différents) | Démos par niveau, études de cas BTS réels, témoignages profs secteur |
 | **2. Inscription** | Demande compte enseignant via formulaire contact. Attend 48h une réponse. | "48h pour répondre ? S'ils ne sont pas réactifs en amont, comment ce sera en SAV ?" | Impatiente (DÉCROCHAGE) | Pas d'auto-inscription prof, validation manuelle = délai > 24h | Compte gratuit auto-créé en 2 min, onboarding 5 min, parrainage écoles |
 | **3. 1ère utilisation** | Upload cours Communication non-verbale. Génère 1 quiz test pour voir. | "Si les questions sont mal formulées ou fausses, je n'y reviens pas. Je dois pouvoir vérifier." | Vigilante → Étonnée | Pas d'aperçu rapide des questions avant publication en classe | Mode preview avant publication, pouvoir modifier questions individuelles |
