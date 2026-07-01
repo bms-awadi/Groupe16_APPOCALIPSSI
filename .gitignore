@@ -94,3 +94,10 @@ docs/etude-avant-projet/prompts/
 # --- Tests ---
 coverage/
 .nyc_output/
+
+benchmark*
+resultats_*
+document_cadrage/
+A-FAIRE.md
+
+load-env.ps1

@@ -10,14 +10,12 @@
  * confirmé » réapparaîtra). La suppression est une action DESTRUCTIVE : on la
  * protège par une confirmation au mot de passe.
  *
- * [TODO J3-bis RGPD] Ajouter ici un bouton « Exporter mes données » (droit à la
- *   portabilité) — placeholder présent plus bas, à implémenter pendant la semaine.
  * [TODO J4] Ajouter un bouton « Signaler un contenu / un quiz » — placeholder.
  */
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { changePassword, deleteAccount, updateProfile } from '@/api/auth';
+import { changePassword, deleteAccount, exportData, updateProfile } from '@/api/auth';
 import { getApiErrorMessage } from '@/api/errors';
 
 export default function ProfilePage() {
@@ -45,6 +43,12 @@ export default function ProfilePage() {
   const [delConfirm, setDelConfirm] = useState(false);
   const [delErr, setDelErr] = useState<string | null>(null);
   const [delLoading, setDelLoading] = useState(false);
+
+  // --- Zone 4 : export RGPD ---
+  const [exportFormat, setExportFormat] = useState<'json' | 'csv'>('json');
+  const [exportMsg, setExportMsg] = useState<string | null>(null);
+  const [exportErr, setExportErr] = useState<string | null>(null);
+  const [exportLoading, setExportLoading] = useState(false);
 
   const handleInfo = async (e: FormEvent) => {
     e.preventDefault();
@@ -81,6 +85,20 @@ export default function ProfilePage() {
       setPwdErr(getApiErrorMessage(err, 'Changement de mot de passe impossible.'));
     } finally {
       setPwdLoading(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setExportMsg(null);
+    setExportErr(null);
+    setExportLoading(true);
+    try {
+      await exportData(exportFormat);
+      setExportMsg('Vos données ont été exportées. Le fichier a été téléchargé.');
+    } catch {
+      setExportErr("L'export est temporairement indisponible. Veuillez réessayer plus tard.");
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -220,21 +238,55 @@ export default function ProfilePage() {
         </form>
       </section>
 
-      {/* Placeholders RGPD / signalement (à compléter pendant la semaine) */}
-      <section className="card bg-slate-50">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">Mes données</h2>
-        <p className="text-sm text-slate-500 mb-4">
-          Fonctionnalités à construire pendant la semaine APOCAL'IPSSI.
+      {/* Zone RGPD : export des données personnelles (Art. 15 & 20) */}
+      <section className="card">
+        <h2 className="text-lg font-semibold text-slate-900 mb-2">Mes données personnelles</h2>
+        <p className="text-sm text-slate-600 mb-4">
+          Conformément au RGPD (Art.&nbsp;15 &amp; 20), vous pouvez télécharger l'ensemble de vos
+          données (profil, quiz, historique).
         </p>
-        <div className="flex flex-wrap gap-3">
+        {exportMsg && (
+          <div className="mb-4 p-3 bg-emerald-50 border-l-4 border-emerald-500 text-sm text-emerald-900 rounded">
+            {exportMsg}
+          </div>
+        )}
+        {exportErr && (
+          <div className="mb-4 p-3 bg-rose-50 border-l-4 border-rose-500 text-sm text-rose-900 rounded">
+            {exportErr}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm font-medium text-slate-700">Format :</span>
+          <label className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
+            <input
+              type="radio"
+              name="exportFormat"
+              value="json"
+              checked={exportFormat === 'json'}
+              onChange={() => setExportFormat('json')}
+            />
+            JSON
+          </label>
+          <label className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
+            <input
+              type="radio"
+              name="exportFormat"
+              value="csv"
+              checked={exportFormat === 'csv'}
+              onChange={() => setExportFormat('csv')}
+            />
+            CSV
+          </label>
           <button
             type="button"
-            disabled
-            title="À implémenter (J3-bis) — droit à la portabilité RGPD"
-            className="btn-secondary opacity-60 cursor-not-allowed"
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn-secondary"
           >
-            Exporter mes données (bientôt)
+            {exportLoading ? 'Export en cours…' : 'Exporter mes données personnelles'}
           </button>
+        </div>
+        <div className="mt-4">
           <button
             type="button"
             disabled

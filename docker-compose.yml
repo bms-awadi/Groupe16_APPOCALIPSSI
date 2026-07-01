@@ -42,14 +42,14 @@ services:
       - "11434:11434"
     volumes:
       - ollama-data:/root/.ollama
-    # Sur GPU NVIDIA, décommenter pour accélérer :
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
+    # GPU NVIDIA activé pour accélération
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   backend:
     build:

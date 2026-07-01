@@ -11,11 +11,18 @@ Endpoints d'authentification (Lot 3 : email-identifiant + validation + reset).
     POST /api/accounts/password-reset/confirm/   — définir le nouveau mot de passe
 """
 
+import csv
+import hashlib
+import io
+import json
 import logging
+from datetime import timezone
 
 from django.contrib.auth import login as django_login
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.utils import timezone as django_timezone
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -24,7 +31,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .emails import EmailError, send_password_reset_email, send_verification_email
-from .models import get_or_create_profile
+from .models import DataRequest, get_or_create_profile
 from .serializers import (
     ChangePasswordSerializer,
     DeleteAccountSerializer,
@@ -268,8 +275,6 @@ class ProfileView(APIView):
     )
     def delete(self, request):
         # Suppression DURE (hard delete) : confirmée par le mot de passe.
-        # [TODO J3-bis RGPD] Avant de supprimer, proposer un export des données
-        #   personnelles (droit à la portabilité). Voir Lot futur "export RGPD".
         serializer = DeleteAccountSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
 
@@ -278,6 +283,115 @@ class ProfileView(APIView):
         django_logout(request)
         user.delete()  # supprime aussi le Profile (on_delete=CASCADE)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ExportDataView(APIView):
+    """Export RGPD Art. 15 — toutes les données personnelles de l'utilisateur.
+
+    GET /api/accounts/me/export/?format=json   (défaut)
+    GET /api/accounts/me/export/?format=csv
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={200: OpenApiResponse(description="Fichier d'export (JSON ou CSV)")})
+    def get(self, request):
+        fmt = request.query_params.get("format", "json").lower()
+        if fmt not in ("json", "csv"):
+            return Response(
+                {"detail": "Format invalide. Valeurs acceptées : json, csv."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+        profile = get_or_create_profile(user)
+
+        # Collecte des données — filtrage strict par request.user
+        quizzes_qs = user.quizzes.prefetch_related("questions").all()
+        sar_qs = user.data_requests.all()
+
+        quizzes_data = [
+            {
+                "id": q.id,
+                "title": q.title,
+                "score": q.score,
+                "created_at": q.created_at.isoformat(),
+                "questions": [
+                    {
+                        "index": qu.index,
+                        "prompt": qu.prompt,
+                        "options": qu.options,
+                        "correct_index": qu.correct_index,
+                        "selected_index": qu.selected_index,
+                    }
+                    for qu in q.questions.all()
+                ],
+            }
+            for q in quizzes_qs
+        ]
+
+        data_requests_data = [
+            {
+                "requested_at": r.requested_at.isoformat(),
+                "status": r.status,
+                "responded_at": r.responded_at.isoformat() if r.responded_at else None,
+            }
+            for r in sar_qs
+        ]
+
+        export_payload = {
+            "user": {
+                "email": user.email,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "date_joined": user.date_joined.isoformat(),
+                "email_verified": profile.email_verified,
+            },
+            "quizzes": quizzes_data,
+            "data_requests": data_requests_data,
+        }
+
+        timestamp = django_timezone.now().strftime("%Y%m%d_%H%M%S")
+        safe_email = user.email.replace("@", "_at_").replace(".", "_")
+
+        if fmt == "json":
+            content = json.dumps(export_payload, ensure_ascii=False, indent=2)
+            content_bytes = content.encode("utf-8")
+            file_hash = hashlib.sha256(content_bytes).hexdigest()
+            filename = f"edututor_export_{safe_email}_{timestamp}.json"
+            response = HttpResponse(content_bytes, content_type="application/json; charset=utf-8")
+        else:
+            output = io.StringIO()
+            writer = csv.writer(output)
+            writer.writerow(
+                ["category", "id", "email", "title", "question_index",
+                 "prompt", "options", "correct_index", "selected_index", "score", "created_at"]
+            )
+            writer.writerow(
+                ["user", user.id, user.email, "", "", "", "", "", "", "", user.date_joined.isoformat()]
+            )
+            for q in quizzes_data:
+                for qu in q["questions"]:
+                    writer.writerow(
+                        ["quiz", q["id"], user.email, q["title"], qu["index"],
+                         qu["prompt"], "|".join(qu["options"]),
+                         qu["correct_index"], qu["selected_index"], q["score"], q["created_at"]]
+                    )
+            content = output.getvalue()
+            content_bytes = content.encode("utf-8")
+            file_hash = hashlib.sha256(content_bytes).hexdigest()
+            filename = f"edututor_export_{safe_email}_{timestamp}.csv"
+            response = HttpResponse(content_bytes, content_type="text/csv; charset=utf-8")
+
+        # Audit trail SAR
+        sar = DataRequest.objects.create(user=user, file_hash=file_hash)
+        sar.status = DataRequest.STATUS_COMPLETED
+        sar.responded_at = django_timezone.now()
+        sar.save(update_fields=["status", "responded_at"])
+
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
 
 
 class ChangePasswordView(APIView):

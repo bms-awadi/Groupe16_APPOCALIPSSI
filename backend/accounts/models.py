@@ -34,6 +34,41 @@ class Profile(models.Model):
         return f"Profile<{self.user.email or self.user.username}>"
 
 
+class DataRequest(models.Model):
+    """Audit trail des demandes d'accès RGPD (SAR — Subject Access Request).
+
+    Conformément à l'Art. 15 RGPD, chaque demande est tracée pour preuve
+    de conformité en cas de contrôle CNIL. Rétention : 3 ans.
+    """
+
+    STATUS_RECEIVED = "received"
+    STATUS_IN_PROGRESS = "in_progress"
+    STATUS_COMPLETED = "completed"
+    STATUS_CHOICES = [
+        (STATUS_RECEIVED, "Reçue"),
+        (STATUS_IN_PROGRESS, "En cours de traitement"),
+        (STATUS_COMPLETED, "Répondue"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="data_requests",
+    )
+    requested_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_RECEIVED)
+    responded_at = models.DateTimeField(null=True, blank=True)
+    file_hash = models.CharField(max_length=64, blank=True)
+
+    class Meta:
+        ordering = ["-requested_at"]
+        verbose_name = "Demande SAR"
+        verbose_name_plural = "Demandes SAR"
+
+    def __str__(self) -> str:
+        return f"SAR<{self.user.email} — {self.status}>"
+
+
 def get_or_create_profile(user) -> Profile:
     """Récupère (ou crée) le profil d'un utilisateur.
 
