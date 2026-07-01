@@ -152,7 +152,90 @@ Aucune perturbation declaree pour le Sprint 2. Le focus reste sur le MVP etudian
 
 ## Sprint 3
 
-*A completer mercredi*
+### 2. Engagement de l'equipe (Scope du Sprint)
+
+| ID | User Story | SP | Binome |
+|----|------------|----|--------|
+| US-04 | En tant qu'etudiant·e, je veux soumettre mes reponses et obtenir la correction, afin de verifier mes connaissances. | 5 | D — Passage (Amani + Awadi) |
+| US-05 | En tant qu'etudiant·e, je veux voir mon score /10 et le detail des reponses, afin de connaitre mes points forts et mes lacunes. | 3 | E — Score (Clement + Rania) |
+
+**Total : 8 SP** (capacite estimee : 14-16 SP pour l'equipe sur 1 jour — marge pour perturbations et stabilisation MVP)
+
+Les membres restants (Badreddine, Noah, Taise) assurent le support qualite sur F1-F3, le patch securite J3, et les livrables RGPD J3-bis.
+
+### 3. Tracabilite MVP (F1-F6)
+
+| Feature | US couvrantes | Statut |
+|---------|---------------|--------|
+| F1 — Auth complete | US-01 | Done (S1) |
+| F2 — Upload cours | US-02 | Done (S1) |
+| F3 — Generation LLM | US-03 | Done (S2) |
+| F4 — Passage + correction | US-04 | Dans le sprint |
+| F5 — Score /10 | US-05 | Dans le sprint |
+| F6 — Historique | US-06 | Sprint 4 |
+
+F1, F2 et F3 sont livrees et testees. F4 et F5 sont le focus du Sprint 3.
+
+### 4. Dependances et ordonnancement
+
+US-04 (Passage) et US-05 (Score) dependent de US-03 (Generation) : il faut un quiz genere pour pouvoir y repondre et obtenir un score.
+
+    S1 : US-01 (Auth)  ||  US-02 (Upload)  [DONE]
+                         |
+    S2 : US-03 (Generation LLM)  [DONE]
+                         |
+    S3 : US-04 (Passage) + US-05 (Score)  [EN COURS]
+                         |
+    S4 : US-06 (Historique)
+
+### Quand est-ce qu'on considere le sprint fini ?
+
+- US-04 et US-05 sont en "Done" (passage fonctionnel, score calcule cote serveur, affichage detaille)
+- Les features F4 (Passage) et F5 (Score) fonctionnent et sont testees
+- On peut faire une demo du parcours S1-S3 : inscription → upload → generation → passage → score
+- F1, F2 et F3 restent stables (pas de regression)
+- Patch J3 (securite) integre et teste
+- Livrables J3-bis (RGPD) produits et pousses sur GitHub
+- Tag Git v1.0.0 cree sur main pour la Release 1 (MVP)
+- Retrospective de 15 min
+
+### Perturbations
+
+#### P3 — Securite (prompt injection)
+
+- **Contexte** : Une faille de prompt injection est detectee sur `/api/llm/generate-quiz/`. Un utilisateur malveillant peut injecter des instructions dans le texte du cours pour manipuler la sortie du LLM.
+- **Impact sur le sprint** : Patch urgent a livrer avant la Release 1. Ralentissement temporaire du developpement F4-F5 pour 2 membres.
+- **Decision** : Badreddine et Noah prennent en charge le patch securite (validation inputs + rate limiting 5 req/min). Le reste de l'equipe continue F4-F5.
+- **Livrables produits** :
+  - Patch validation inputs cote backend
+  - Rate limiting 5 req/min sur `/api/llm/generate-quiz/`
+  - Tests de non-regression sur la generation de quiz
+- **SP impactes** : 0 (le patch est traite en parallele, hors scope sprint)
+
+#### P3-bis — RGPD / Donnees personnelles (J3-bis)
+
+- **Contexte** : Hugo Petit, utilisateur de la plateforme, formule une demande d'acces aux donnees personnelles au titre de l'article 15 du RGPD. La plateforme n'a pas encore d'export RGPD ni de pages legales completes.
+- **Impact sur le sprint** : Demande de conformite urgente a traiter avant la Release 1. Le developpement complet est hors scope MVP (delai trop court).
+- **Decision** : Posture de conformite documentee. L'equipe produit 5 livrables documentaires (pas de code) et planifie l'implementation post-MVP.
+- **Livrables produits** :
+  1. `docs/rgpd/endpoint-export-rest.md` — Specification de l'endpoint `GET /api/accounts/me/export/`
+  2. `docs/rgpd/bouton-frontend-export.md` — Specification du bouton "Exporter mes donnees"
+  3. `docs/rgpd/politique-retention.md` — Politique de retention (3 sections : durees, motifs legaux, suppression Art. 17)
+  4. `docs/rgpd/audit-trail-sar.md` — Specification du modele `DataRequest` (audit trail SAR)
+  5. `docs/rgpd/reponse-hugo-petit.md` — Reponse professionnelle a Hugo Petit
+- **SP impactes** : 0 (livres documentaires, pas de developpement)
+
+### Grille d'auto-evaluation Sprint 3
+
+| Critere qualite | Auto-evaluation | Commentaire |
+|-------------------|-----------------|-------------|
+| L'objectif du sprint est clair et mesurable | ✅ Oui | F4 (Passage) + F5 (Score) + patch securite + livrables RGPD |
+| Toutes les US du Product Backlog priorisees sont dans le sprint | ✅ Oui | 2 US (US-04, US-05), 8 SP |
+| Chaque US a un SP, un binome et une tracabilite F1-F6 | ✅ Oui | IDs alignes avec le Product Backlog officiel |
+| Les dependances sont visibles et realistes | ✅ Oui | Arbre ASCII + dependance US-04/05 → US-03 |
+| La DoD est complete et verifiable | ✅ Oui | 7 criteres checkables (tests, demo S1-S3, patch J3, RGPD, tag v1.0.0, retro) |
+| Les perturbations P3 et P3-bis sont documentees avec impact + decision | ✅ Oui | Contexte, impact, decision, livrables, SP 0 |
+| Le document a ete relu par l'equipe | ✅ Oui | Relu en fin de journee avant livraison MVP |
 
 ## Sprint 4
 
