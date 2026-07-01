@@ -30,7 +30,7 @@ def test_t5_avant_patch_sortie_acceptee():
 
     print("\n[T5 AVANT PATCH]")
     print(f"  Nombre de questions reçues : {len(data['questions'])}")
-    print(f"  Nombre attendu             : 10")
+    print("  Nombre attendu             : 10")
     print("  => json.loads accepte sans erreur : le quiz est incomplet en base")
 
     assert len(data["questions"]) == 1  # structurellement valide mais incomplet
