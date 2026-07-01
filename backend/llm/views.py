@@ -20,6 +20,8 @@ from .pdf_utils import PDFError, extract_text_from_pdf
 from .serializers import GenerateQuizSerializer
 from .services import get_llm_client
 from .services.base import LLMError
+from .services.cascade import generate_quiz_with_cascade
+from .services.factory import resolve_active
 
 
 class PingView(APIView):
@@ -134,9 +136,21 @@ class GenerateQuizView(APIView):
             except PDFError as exc:
                 return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 2. Appel LLM (Ollama ou Mock)
+        # 2. Appel LLM — cascade ADR-0001 si backend primaire = groq,
+        #    sinon client unique configuré (mock, ollama direct, etc.).
+        conf = resolve_active()
         try:
-            questions_data = get_llm_client().generate_quiz(source_text=source_text, title=title)
+            if conf["backend"] == "groq":
+                questions_data = generate_quiz_with_cascade(
+                    source_text=source_text,
+                    title=title,
+                    api_key=conf["api_key"],
+                    ollama_host=conf["ollama_host"],
+                )
+            else:
+                questions_data = get_llm_client().generate_quiz(
+                    source_text=source_text, title=title
+                )
         except LLMError as exc:
             return Response(
                 {"detail": f"Échec génération LLM : {exc}"},
