@@ -16,7 +16,6 @@ import hashlib
 import io
 import json
 import logging
-from datetime import timezone
 
 from django.contrib.auth import login as django_login
 from django.contrib.auth import logout as django_logout
