@@ -364,18 +364,51 @@ class ExportDataView(APIView):
             output = io.StringIO()
             writer = csv.writer(output)
             writer.writerow(
-                ["category", "id", "email", "title", "question_index",
-                 "prompt", "options", "correct_index", "selected_index", "score", "created_at"]
+                [
+                    "category",
+                    "id",
+                    "email",
+                    "title",
+                    "question_index",
+                    "prompt",
+                    "options",
+                    "correct_index",
+                    "selected_index",
+                    "score",
+                    "created_at",
+                ]
             )
             writer.writerow(
-                ["user", user.id, user.email, "", "", "", "", "", "", "", user.date_joined.isoformat()]
+                [
+                    "user",
+                    user.id,
+                    user.email,
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    user.date_joined.isoformat(),
+                ]
             )
             for q in quizzes_data:
                 for qu in q["questions"]:
                     writer.writerow(
-                        ["quiz", q["id"], user.email, q["title"], qu["index"],
-                         qu["prompt"], "|".join(qu["options"]),
-                         qu["correct_index"], qu["selected_index"], q["score"], q["created_at"]]
+                        [
+                            "quiz",
+                            q["id"],
+                            user.email,
+                            q["title"],
+                            qu["index"],
+                            qu["prompt"],
+                            "|".join(qu["options"]),
+                            qu["correct_index"],
+                            qu["selected_index"],
+                            q["score"],
+                            q["created_at"],
+                        ]
                     )
             content = output.getvalue()
             content_bytes = content.encode("utf-8")
