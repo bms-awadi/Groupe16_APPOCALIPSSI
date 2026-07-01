@@ -39,7 +39,9 @@ def _chain(api_key: str, ollama_host: str | None) -> list[tuple[str, object]]:
         ),
         (
             "Groq llama-3.3-70b-versatile (repli 2)",
-            GroqLLMClient(api_key=groq_key, model="llama-3.3-70b-versatile", timeout=_CLOUD_TIMEOUT),
+            GroqLLMClient(
+                api_key=groq_key, model="llama-3.3-70b-versatile", timeout=_CLOUD_TIMEOUT
+            ),
         ),
         (
             "Ollama phi GPU (repli 3)",
