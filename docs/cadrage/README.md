@@ -43,7 +43,7 @@ Story Map en amont produit des priorités arbitraires.
 ## 🔄 Cycle de vie d'un document
 
 `Draft` → `En revue PO` → `Validé PO` → `Archivé`, avec versionnement
-`v1.0` (cadrage initial) → `v1.1`/`v1.2` (révisions mineures post-revue) →
+`v1.0` (cadragge initial) → `v1.1`/`v1.2` (révisions mineures post-revue) →
 `v2.0` (révision majeure post-perturbation).
 
 ## 📋 Pour la liste concrète des tâches

@@ -19,6 +19,8 @@ export type LegalSection = {
   title: string;
   /** Indication pour l'équipe : quoi écrire dans cette rubrique. */
   hint: string;
+  /** Contenu réel (remplace le placeholder "À compléter" quand fourni). */
+  content?: ReactNode;
 };
 
 type Props = {
@@ -35,31 +37,37 @@ export default function LegalScaffold({ title, intro, sections, children }: Prop
       <h1 className="text-3xl font-bold text-slate-900 mb-2">{title}</h1>
       <p className="text-slate-600 mb-6">{intro}</p>
 
-      {/* Bandeau "à compléter" + lien vers le cours de référence */}
-      <div className="mb-8 p-4 bg-amber-50 border-l-4 border-amber-400 rounded text-sm text-amber-900">
-        <p className="font-semibold mb-1">📝 Page à compléter par votre équipe</p>
-        <p>
-          Ce document est un <strong>modèle vierge</strong>. Remplacez chaque indication en italique
-          par le contenu réel de votre projet. Besoin d'aide ?{' '}
-          <a
-            href={REGLEMENTATION_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-indigo-700 underline hover:no-underline font-medium"
-          >
-            Consultez le cours « Réglementation des données »
-          </a>
-          .
-        </p>
-      </div>
+      {/* Bandeau "à compléter" — masqué si toutes les sections ont du contenu */}
+      {sections.some((s) => !s.content) && (
+        <div className="mb-8 p-4 bg-amber-50 border-l-4 border-amber-400 rounded text-sm text-amber-900">
+          <p className="font-semibold mb-1">📝 Page à compléter par votre équipe</p>
+          <p>
+            Ce document est un <strong>modèle vierge</strong>. Remplacez chaque indication en italique
+            par le contenu réel de votre projet. Besoin d'aide ?{' '}
+            <a
+              href={REGLEMENTATION_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-700 underline hover:no-underline font-medium"
+            >
+              Consultez le cours « Réglementation des données »
+            </a>
+            .
+          </p>
+        </div>
+      )}
 
       <div className="space-y-6">
         {sections.map((section, i) => (
           <section key={section.title}>
-            <h2 className="text-lg font-semibold text-slate-900 mb-1">
+            <h2 className="text-lg font-semibold text-slate-900 mb-2">
               {i + 1}. {section.title}
             </h2>
-            <p className="text-sm text-slate-500 italic">À compléter — {section.hint}</p>
+            {section.content ? (
+              <div className="text-sm text-slate-700 space-y-1">{section.content}</div>
+            ) : (
+              <p className="text-sm text-slate-500 italic">À compléter — {section.hint}</p>
+            )}
           </section>
         ))}
       </div>

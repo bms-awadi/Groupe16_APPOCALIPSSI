@@ -305,41 +305,61 @@ class ExportDataView(APIView):
         user = request.user
         profile = get_or_create_profile(user)
 
-        # Collecte des données — filtrage strict par request.user
-        quizzes_qs = user.quizzes.prefetch_related("questions").all()
+        # Collecte des données — filtrage STRICT par request.user (jamais d'autres users)
+        quizzes_qs = user.quizzes.prefetch_related("questions").order_by("-created_at")
         sar_qs = user.data_requests.all()
 
+        # Catégorie 2 : métadonnées des quiz (sans questions — séparées ci-dessous)
         quizzes_data = [
             {
                 "id": q.id,
                 "title": q.title,
-                "score": q.score,
                 "created_at": q.created_at.isoformat(),
-                "questions": [
-                    {
-                        "index": qu.index,
-                        "prompt": qu.prompt,
-                        "options": qu.options,
-                        "correct_index": qu.correct_index,
-                        "selected_index": qu.selected_index,
-                    }
-                    for qu in q.questions.all()
-                ],
             }
             for q in quizzes_qs
         ]
 
-        data_requests_data = [
+        # Catégorie 3 : réponses données par l'utilisateur (une ligne par question)
+        responses_data = [
+            {
+                "quiz_id": q.id,
+                "quiz_title": q.title,
+                "question_index": qu.index,
+                "question_prompt": qu.prompt,
+                "selected_index": qu.selected_index,
+                "correct_index": qu.correct_index,
+                "is_correct": qu.selected_index == qu.correct_index,
+            }
+            for q in quizzes_qs
+            for qu in q.questions.all()
+        ]
+
+        # Catégorie 4 : historique des scores (Art. 15 — progression pédagogique)
+        score_history_data = [
+            {
+                "quiz_id": q.id,
+                "quiz_title": q.title,
+                "score": q.score,
+                "date": q.created_at.isoformat(),
+            }
+            for q in quizzes_qs
+        ]
+
+        # Catégorie 5 : journal des demandes SAR (audit trail)
+        sar_logs_data = [
             {
                 "requested_at": r.requested_at.isoformat(),
                 "status": r.status,
                 "responded_at": r.responded_at.isoformat() if r.responded_at else None,
+                "file_hash": r.file_hash or None,
             }
             for r in sar_qs
         ]
 
         export_payload = {
-            "user": {
+            "exported_at": django_timezone.now().isoformat(),
+            # Catégorie 1 : données du profil utilisateur
+            "user_profile": {
                 "email": user.email,
                 "username": user.username,
                 "first_name": user.first_name,
@@ -347,8 +367,22 @@ class ExportDataView(APIView):
                 "date_joined": user.date_joined.isoformat(),
                 "email_verified": profile.email_verified,
             },
+            # Catégorie 2 : quiz créés
             "quizzes": quizzes_data,
-            "data_requests": data_requests_data,
+            # Catégorie 3 : réponses aux questions (Art. 15 — portabilité)
+            "quiz_responses": responses_data,
+            # Catégorie 4 : historique des scores (progression pédagogique)
+            "score_history": score_history_data,
+            # Catégorie 5 : journal SAR (audit trail Art. 15)
+            "sar_logs": sar_logs_data,
+            # Catégorie 6 : mentions légales et coordonnées RGPD
+            "legal_notice": {
+                "dpo_contact": "dpo@edututor.fr",
+                "retention_years": 3,
+                "policy_url": "/legal/privacy",
+                "deletion_right": "Art. 17 RGPD — contacter dpo@edututor.fr",
+                "portability_right": "Art. 20 RGPD — cet export constitue la réponse",
+            },
         }
 
         timestamp = django_timezone.now().strftime("%Y%m%d_%H%M%S")
@@ -361,55 +395,45 @@ class ExportDataView(APIView):
             filename = f"edututor_export_{safe_email}_{timestamp}.json"
             response = HttpResponse(content_bytes, content_type="application/json; charset=utf-8")
         else:
+            # CSV multi-section : une section par catégorie RGPD (6 au total)
             output = io.StringIO()
             writer = csv.writer(output)
-            writer.writerow(
-                [
-                    "category",
-                    "id",
-                    "email",
-                    "title",
-                    "question_index",
-                    "prompt",
-                    "options",
-                    "correct_index",
-                    "selected_index",
-                    "score",
-                    "created_at",
-                ]
-            )
-            writer.writerow(
-                [
-                    "user",
-                    user.id,
-                    user.email,
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    user.date_joined.isoformat(),
-                ]
-            )
-            for q in quizzes_data:
-                for qu in q["questions"]:
-                    writer.writerow(
-                        [
-                            "quiz",
-                            q["id"],
-                            user.email,
-                            q["title"],
-                            qu["index"],
-                            qu["prompt"],
-                            "|".join(qu["options"]),
-                            qu["correct_index"],
-                            qu["selected_index"],
-                            q["score"],
-                            q["created_at"],
-                        ]
-                    )
+
+            writer.writerow(["## CATEGORIE 1 : PROFIL UTILISATEUR"])
+            writer.writerow(["email", "username", "first_name", "last_name", "date_joined", "email_verified"])
+            p = export_payload["user_profile"]
+            writer.writerow([p["email"], p["username"], p["first_name"], p["last_name"], p["date_joined"], p["email_verified"]])
+
+            writer.writerow([])
+            writer.writerow(["## CATEGORIE 2 : QUIZ"])
+            writer.writerow(["quiz_id", "title", "created_at"])
+            for q in export_payload["quizzes"]:
+                writer.writerow([q["id"], q["title"], q["created_at"]])
+
+            writer.writerow([])
+            writer.writerow(["## CATEGORIE 3 : REPONSES AUX QUESTIONS"])
+            writer.writerow(["quiz_id", "quiz_title", "question_index", "question_prompt", "selected_index", "correct_index", "is_correct"])
+            for r in export_payload["quiz_responses"]:
+                writer.writerow([r["quiz_id"], r["quiz_title"], r["question_index"], r["question_prompt"], r["selected_index"], r["correct_index"], r["is_correct"]])
+
+            writer.writerow([])
+            writer.writerow(["## CATEGORIE 4 : HISTORIQUE DES SCORES"])
+            writer.writerow(["quiz_id", "quiz_title", "score", "date"])
+            for s in export_payload["score_history"]:
+                writer.writerow([s["quiz_id"], s["quiz_title"], s["score"], s["date"]])
+
+            writer.writerow([])
+            writer.writerow(["## CATEGORIE 5 : JOURNAL SAR (demandes RGPD)"])
+            writer.writerow(["requested_at", "status", "responded_at", "file_hash"])
+            for log in export_payload["sar_logs"]:
+                writer.writerow([log["requested_at"], log["status"], log["responded_at"] or "", log["file_hash"] or ""])
+
+            writer.writerow([])
+            writer.writerow(["## CATEGORIE 6 : MENTIONS LEGALES"])
+            writer.writerow(["dpo_contact", "retention_years", "policy_url", "deletion_right"])
+            lg = export_payload["legal_notice"]
+            writer.writerow([lg["dpo_contact"], lg["retention_years"], lg["policy_url"], lg["deletion_right"]])
+
             content = output.getvalue()
             content_bytes = content.encode("utf-8")
             file_hash = hashlib.sha256(content_bytes).hexdigest()

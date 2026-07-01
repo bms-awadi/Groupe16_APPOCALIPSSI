@@ -32,7 +32,7 @@ ignore = ["E501"]  # gérée par black
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "apocal.settings"
-python_files = ["tests.py", "test_*.py", "*_tests.py"]
+python_files = ["tests.py", "test_*.py", "*_tests.py", "equipe-*-test_*.py"]
 addopts = "--strict-markers --tb=short -q"
 testpaths = ["accounts", "llm", "quizzes", "administration"]
 

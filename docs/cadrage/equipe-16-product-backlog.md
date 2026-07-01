@@ -3,7 +3,6 @@
 **APOCAL'IPSSI** · CADRAGE MATINAL · ARTEFACT 2 SUR 7
 Projet EduTutor IA · Édition 2026 · Semaine immersive Scrum
 
-
 ## Identification
 
 | Champ            | Valeur                                                                                                                                     |
@@ -23,6 +22,8 @@ EduTutor IA est une plateforme brownfield : le code F1–F6 existe, tourne en lo
 
 La perturbation J1 (lundi matin, cadrage) a introduit Mme Sophie Lefèvre comme cible secondaire. Une de ses stories (US-21) a été repriorisée en MUST par décision d'équipe : la priorité R1 reste le parcours étudiant complet (F1–F6), livré à mercredi 17h45, complété par une visibilité enseignante minimale (US-21) jugée nécessaire dès cette première release.
 
+La perturbation J3 (mercredi 2 juillet, 10h00) a formalisé la faille de prompt injection détectée sur `/api/llm/generate-quiz/` : 4 couches de défense obligatoires, jeu de tests adversariaux (≥5 prompts), note de sécurité et CI — livrables bloquants avant la Release 1. Aucune US nouvelle n'est créée : le patch est traité en parallèle dans le Sprint 4 (0 SP burnup). Voir section Perturbation J3.
+
 ---
 
 ## Epics
@@ -41,28 +42,28 @@ La perturbation J1 (lundi matin, cadrage) a introduit Mme Sophie Lefèvre comme 
 
 ## MUST — Release 1, à livrer mercredi 2 juillet 17h45
 
-| ID    | User Story                                                                                                                                            | Persona     | SP | Sprint |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | -- | ------ |
-| US-01 | En tant qu'étudiant·e, je veux créer un compte avec email et mot de passe, afin de sauvegarder mes quiz et y revenir quand je veux.                   | Léa Martin | 3  | S1     |
-| US-02 | En tant qu'étudiant·e, je veux uploader un PDF (≤ 5 Mo) ou saisir un texte de cours (≥ 200 car.), afin de ne pas recopier mon support à la main.      | Léa Martin | 5  | S1     |
-| US-03 | En tant qu'étudiant·e, je veux générer un quiz de 10 QCM en moins de 60 s à partir de mon cours, afin de réviser rapidement un chapitre.              | Léa Martin | 8  | S2     |
-| US-04 | En tant qu'étudiant·e, je veux soumettre mes réponses et obtenir une correction automatique, afin de savoir où je me situe sans attendre un prof.     | Léa Martin | 3  | S3     |
-| US-05 | En tant qu'étudiant·e, je veux voir mon score /10 et le détail des bonnes et mauvaises réponses, afin de mesurer ma progression sur ce chapitre.      | Léa Martin | 3  | S3     |
-| US-06 | En tant qu'étudiant·e, je veux consulter l'historique de mes quiz passés, afin de suivre mon évolution dans le temps.                                 | Léa Martin | 3  | S4     |
-| US-21 | En tant qu'enseignante, je veux voir la progression de chaque étudiant·e (score moyen, dernier quiz), afin de cibler mes interventions pédagogiques.  | Mme Lefèvre | 5  | S4     |
+| ID    | User Story                                                                                                                                              | Persona      | SP | Sprint |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -- | ------ |
+| US-01 | En tant qu'étudiant·e, je veux créer un compte avec email et mot de passe, afin de sauvegarder mes quiz et y revenir quand je veux.                  | Léa Martin  | 3  | S1     |
+| US-02 | En tant qu'étudiant·e, je veux uploader un PDF (≤ 5 Mo) ou saisir un texte de cours (≥ 200 car.), afin de ne pas recopier mon support à la main.   | Léa Martin  | 5  | S1     |
+| US-03 | En tant qu'étudiant·e, je veux générer un quiz de 10 QCM en moins de 60 s à partir de mon cours, afin de réviser rapidement un chapitre.          | Léa Martin  | 8  | S2     |
+| US-04 | En tant qu'étudiant·e, je veux soumettre mes réponses et obtenir une correction automatique, afin de savoir où je me situe sans attendre un prof.   | Léa Martin  | 3  | S3     |
+| US-05 | En tant qu'étudiant·e, je veux voir mon score /10 et le détail des bonnes et mauvaises réponses, afin de mesurer ma progression sur ce chapitre.    | Léa Martin  | 3  | S3     |
+| US-06 | En tant qu'étudiant·e, je veux consulter l'historique de mes quiz passés, afin de suivre mon évolution dans le temps.                               | Léa Martin  | 3  | S4     |
+| US-21 | En tant qu'enseignante, je veux voir la progression de chaque étudiant·e (score moyen, dernier quiz), afin de cibler mes interventions pédagogiques. | Mme Lefèvre | 5  | S4     |
 
 Total MUST : 30 SP
 
 ### Traçabilité F1–F7
 
-| Feature            | US    | Brownfield — état actuel                                                                              |
-| ------------------ | ----- | ------------------------------------------------------------------------------------------------------- |
-| F1 — Auth         | US-01 | Inscription, login, validation email implémentés. Doublon email non géré. Tests manquants.          |
-| F2 — Upload       | US-02 | Upload PDF et saisie texte fonctionnels. Bug : PDF corrompu → HTTP 500 silencieux au lieu de HTTP 400. |
-| F3 — Génération | US-03 | Génération 10 QCM via Ollama fonctionnelle. Timeout = 600 s (cible < 60 s). ADR-01 requis dès J2.    |
-| F4 — Passage      | US-04 | Soumission des réponses fonctionnelle. Pas de tests d'intégration sur la persistance.                 |
-| F5 — Score        | US-05 | Affichage score et correction fonctionnels. Distinction visuelle bonne/mauvaise réponse non testée.   |
-| F6 — Historique   | US-06 | Endpoint /api/quizzes/ existe. Tri par date décroissante non garanti. Pagination non testée.          |
+| Feature                | US    | Brownfield — état actuel                                                                                                                                                 |
+| ---------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1 — Auth             | US-01 | Inscription, login, validation email implémentés. Doublon email non géré. Tests manquants.                                                                             |
+| F2 — Upload           | US-02 | Upload PDF et saisie texte fonctionnels. Bug : PDF corrompu → HTTP 500 silencieux au lieu de HTTP 400.                                                                    |
+| F3 — Génération     | US-03 | Génération 10 QCM via Ollama fonctionnelle. Timeout = 600 s (cible < 60 s). ADR-01 requis dès J2.                                                                       |
+| F4 — Passage          | US-04 | Soumission des réponses fonctionnelle. Pas de tests d'intégration sur la persistance.                                                                                    |
+| F5 — Score            | US-05 | Affichage score et correction fonctionnels. Distinction visuelle bonne/mauvaise réponse non testée.                                                                      |
+| F6 — Historique       | US-06 | Endpoint /api/quizzes/ existe. Tri par date décroissante non garanti. Pagination non testée.                                                                             |
 | F7 — Suivi enseignant | US-21 | Aucune implémentation existante. Nécessite : modèle de droits enseignant/étudiant, vue agrégée des scores par classe. Développement neuf, pas de dette à corriger. |
 
 ### Critères d'acceptation — MUST
@@ -87,7 +88,9 @@ Note : bug brownfield prioritaire — pypdf lève une exception non interceptée
 - When : l'utilisateur clique "Générer un quiz"
 - Then : POST /api/llm/generate-quiz/ retourne HTTP 201 en moins de 60 s, avec 10 objets question (prompt + 4 options + correct\_index) — HTTP 504 avec message lisible si le délai est dépassé
 
-Note : timeout actuel = 600 s, sans message d'erreur. L'ADR-01 (mardi matin) déclenchera soit un réglage du timeout Ollama, soit une bascule vers Groq ou un autre fournisseur.
+Note ADR-01 : timeout actuel = 600 s, sans message d'erreur. L'ADR-01 (mardi matin) déclenchera soit un réglage du timeout Ollama, soit une bascule vers Groq ou un autre fournisseur.
+
+Note J3 (pré-requis bloquant Release 1) : séparation system/user obligatoire dans le prompt, validation JSON post-LLM (schéma strict), ≥5 tests adversariaux en CI. Voir section Perturbation J3 pour les 7 critères CA-J3-1 à CA-J3-7.
 
 #### US-04 — Soumettre les réponses et obtenir la correction
 
@@ -117,14 +120,14 @@ Note : timeout actuel = 600 s, sans message d'erreur. L'ADR-01 (mardi matin) dé
 
 ## SHOULD — Release 2, à livrer jeudi 3 juillet 17h
 
-| ID    | User Story                                                                                                                                                    | Persona      | SP | Sprint          |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -- | --------------- |
-| US-07 | En tant qu'étudiant·e, je veux réinitialiser mon mot de passe par email (lien valide 1h), afin de ne pas être bloqué·e si je l'oublie.                  | Léa Martin  | 3  | S6              |
-| US-08 | En tant qu'étudiant·e, je veux accéder à une bibliothèque de mes cours uploadés, afin de regénérer un quiz sur un support déjà soumis.              | Léa Martin  | 5  | si dispo S6–S7 |
-| US-09 | En tant qu'étudiant·e, je veux choisir le niveau de difficulté et le nombre de questions (5–20), afin d'adapter la session à mon objectif de révision.  | Léa Martin  | 5  | S7              |
-| US-10 | En tant qu'étudiant·e, je veux activer un timer optionnel par question (10–30 s), afin de simuler les conditions d'examen.                                 | Léa Martin  | 3  | S7              |
-| US-11 | En tant qu'étudiant·e, je veux un dashboard de progression par chapitre, afin de savoir précisément où j'ai des lacunes avant les partiels.              | Léa Martin  | 5  | si dispo S7     |
-| US-12 | En tant qu'utilisateur·trice, je veux exporter mes données (JSON + CSV, Art. 15 RGPD), afin d'exercer mon droit d'accès sans contacter le support.         | Tous         | 5  | S5              |
+| ID    | User Story                                                                                                                                                                                                                   | Persona      | SP | Sprint          |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -- | --------------- |
+| US-07 | En tant qu'étudiant·e, je veux réinitialiser mon mot de passe par email (lien valide 1h), afin de ne pas être bloqué·e si je l'oublie.                                                                                 | Léa Martin  | 3  | S6              |
+| US-08 | En tant qu'étudiant·e, je veux accéder à une bibliothèque de mes cours uploadés, afin de regénérer un quiz sur un support déjà soumis.                                                                             | Léa Martin  | 5  | si dispo S6–S7 |
+| US-09 | En tant qu'étudiant·e, je veux choisir le niveau de difficulté et le nombre de questions (5–20), afin d'adapter la session à mon objectif de révision.                                                                 | Léa Martin  | 5  | S7              |
+| US-10 | En tant qu'étudiant·e, je veux activer un timer optionnel par question (10–30 s), afin de simuler les conditions d'examen.                                                                                                | Léa Martin  | 3  | S7              |
+| US-11 | En tant qu'étudiant·e, je veux un dashboard de progression par chapitre, afin de savoir précisément où j'ai des lacunes avant les partiels.                                                                             | Léa Martin  | 5  | si dispo S7     |
+| US-12 | En tant qu'utilisateur·trice, je veux exporter mes données (JSON + CSV, Art. 15 RGPD), afin d'exercer mon droit d'accès sans contacter le support.                                                                        | Tous         | 5  | S5              |
 | US-22 | En tant qu'enseignante, je veux recevoir une alerte quand un·e étudiant·e décroche (score moyen < 5/10 sur ses 3 derniers quiz ou inactivité de 14 jours), afin d'intervenir avant qu'il/elle abandonne ses révisions. | Mme Lefèvre | 5  | S6              |
 
 Total SHOULD : 31 SP
@@ -163,14 +166,14 @@ Enseignante authentifiée sur /teacher avec des étudiants suivis. When : un ét
 
 ## COULD — Si capacité disponible
 
-| ID    | User Story                                                                                                                                                          | Persona      | SP | Cible            |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -- | ---------------- |
-| US-13 | En tant qu'étudiant·e, je veux me connecter via Google ou Apple (OAuth), afin de ne pas gérer un mot de passe supplémentaire.                                   | Léa Martin  | 5  | R2 si dispo      |
-| US-14 | En tant qu'étudiant·e, je veux importer un cours depuis une URL web, afin de ne pas avoir à copier-coller l'article.                                             | Léa Martin  | 8  | R2 si dispo      |
-| US-15 | En tant qu'enseignant·e, je veux générer des questions ouvertes corrigées par le LLM, afin de varier les modes d'évaluation.                                   | Mme Lefèvre | 13 | R2 si dispo      |
-| US-16 | En tant qu'étudiant·e, je veux identifier mes lacunes par chapitre (agrégation des questions ratées), afin de planifier mes révisions.                         | Léa Martin  | 8  | R2 si dispo      |
-| US-17 | En tant qu'utilisateur·trice, je veux supprimer mon compte et mes données (Art. 17 RGPD), afin d'exercer mon droit à l'effacement.                               | Tous         | 5  | R2 si dispo      |
-| US-23 | En tant qu'enseignante, je veux envoyer un message d'encouragement à un·e étudiant·e depuis mon interface, afin d'intervenir sans sortir de la plateforme.     | Mme Lefèvre | 3  | R2 si dispo      |
+| ID    | User Story                                                                                                                                                     | Persona      | SP | Cible       |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -- | ----------- |
+| US-13 | En tant qu'étudiant·e, je veux me connecter via Google ou Apple (OAuth), afin de ne pas gérer un mot de passe supplémentaire.                              | Léa Martin  | 5  | R2 si dispo |
+| US-14 | En tant qu'étudiant·e, je veux importer un cours depuis une URL web, afin de ne pas avoir à copier-coller l'article.                                        | Léa Martin  | 8  | R2 si dispo |
+| US-15 | En tant qu'enseignant·e, je veux générer des questions ouvertes corrigées par le LLM, afin de varier les modes d'évaluation.                              | Mme Lefèvre | 13 | R2 si dispo |
+| US-16 | En tant qu'étudiant·e, je veux identifier mes lacunes par chapitre (agrégation des questions ratées), afin de planifier mes révisions.                    | Léa Martin  | 8  | R2 si dispo |
+| US-17 | En tant qu'utilisateur·trice, je veux supprimer mon compte et mes données (Art. 17 RGPD), afin d'exercer mon droit à l'effacement.                          | Tous         | 5  | R2 si dispo |
+| US-23 | En tant qu'enseignante, je veux envoyer un message d'encouragement à un·e étudiant·e depuis mon interface, afin d'intervenir sans sortir de la plateforme. | Mme Lefèvre | 3  | R2 si dispo |
 
 Total COULD : 42 SP
 
@@ -232,11 +235,11 @@ La perturbation J1 a été reçue le lundi matin, pendant la séance de cadrage.
 
 Mme Sophie Lefèvre (42 ans, professeure BTS Communication, 28 étudiants, Lyon 6e) rejoint la story map en tant que persona secondaire et demande une interface enseignante. Décision d'équipe : une story enseignante (US-21) est requalifiée en MUST pour garantir une visibilité enseignante dès la Release 1, le reste du parcours étudiant F1–F6 restant inchangé.
 
-| Story J1                                    | Priorité | SP | Justification                                                                     |
-| ------------------------------------------- | --------- | -- | --------------------------------------------------------------------------------- |
-| US-21 — Voir la progression de chaque étudiant | MUST R1  | 5  | Visibilité enseignante garantie dès Release 1, sponsor en attente d'une démo fonctionnelle. Page /teacher dédiée, tableau nom/score moyen/dernier quiz/nb sessions. |
-| US-22 — Alerte décrochage étudiant      | SHOULD R2 | 5  | Reformulée depuis le dashboard initial — alerte automatique (score < 5/10 sur 3 derniers quiz ou inactivité 14 j), réalisable en S6        |
-| US-23 — Messagerie enseignant → étudiant | COULD R2  | 3  | Différenciateur fort, mais risque scope creep si intégré trop tôt — réestimée à 3 SP après découpage plus fin            |
+| Story J1                                         | Priorité | SP | Justification                                                                                                                                                            |
+| ------------------------------------------------ | --------- | -- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| US-21 — Voir la progression de chaque étudiant | MUST R1   | 5  | Visibilité enseignante garantie dès Release 1, sponsor en attente d'une démo fonctionnelle. Page /teacher dédiée, tableau nom/score moyen/dernier quiz/nb sessions. |
+| US-22 — Alerte décrochage étudiant            | SHOULD R2 | 5  | Reformulée depuis le dashboard initial — alerte automatique (score < 5/10 sur 3 derniers quiz ou inactivité 14 j), réalisable en S6                                  |
+| US-23 — Messagerie enseignant → étudiant      | COULD R2  | 3  | Différenciateur fort, mais risque scope creep si intégré trop tôt — réestimée à 3 SP après découpage plus fin                                                  |
 
 Note de décision : la perturbation J1 est documentée et absorbée. Le scope MUST passe de 25 à 30 SP suite à la repriorisation de US-21. Le scope engagé (MUST + SHOULD) passe de 56 à 61 SP, dépassant de 5 SP la vélocité cible (8 SP/sprint × 7 sprints = 56 SP). L'équipe assume ce dépassement et prévoit de sacrifier US-08 (bibliothèque de cours, 5 SP, repasse en COULD) si la capacité S6–S7 s'avère insuffisante.
 
@@ -245,6 +248,78 @@ Raisonnement :
 - US-21 est repriorisée en MUST suite à arbitrage d'équipe : le sponsor attend une démonstration concrète de la persona enseignante dès Release 1, justifiant une page /teacher dédiée plutôt qu'un simple accès admin.
 - US-22 est reformulée en mécanisme d'alerte proactive (plutôt qu'un dashboard descriptif), répondant plus directement au besoin exprimé par Mme Lefèvre (« repérer ceux qui décrochent »). Reste cohérente avec une Release 2 en Sprint 6.
 - US-23 (messagerie) demeure la story la plus risquée en scope pour une semaine brownfield — maintenue en COULD R2, avec un effort réestimé à la baisse (3 SP).
+
+---
+
+## Perturbation J3 — Sécurité / Prompt Injection
+
+La perturbation J3 est reçue le mercredi 2 juillet à 10h00, pendant le Sprint 4.
+
+Un testeur interne détecte une injection de prompt critique sur `/api/llm/generate-quiz/` : du texte blanc-sur-blanc dans un cours uploadé a permis de forcer le LLM à ignorer ses instructions originales et à retourner systématiquement la réponse A pour toutes les questions. La vulnérabilité est référencée OWASP LLM01:2025 (Prompt Injection) et entre dans le champ du règlement AI Act EU (transparence et robustesse des systèmes IA).
+
+### Impact sur les stories
+
+J3 ne génère pas de nouvelle US. Elle impose des livrables de sécurité obligatoires, attachés à US-03, à produire avant la Release 1. Le patch est traité en parallèle dans Sprint 4 (0 SP ajouté au burnup).
+
+| Livrable J3                                                                                                                                                                   | Type  | Critères                 | Sprint |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------- | ------ |
+| Jeu de tests adversariaux : ≥5 prompts variés (texte clair, blanc-sur-blanc, base64, Unicode obscur, langues différentes), résultat attendu avant/après patch documenté | Tests | CA-J3-1, CA-J3-2          | S4     |
+| Patch code — 4 couches de défense : (1) séparation system/user explicite, (2) system prompt défensif, (3) validation JSON post-LLM stricte, (4) tests adversariaux en CI  | Code  | CA-J3-3, CA-J3-4, CA-J3-6 | S4     |
+| Note de sécurité (1 page, 3 sections) : diagnostic de la faille, stratégie défensive déployée, limites résiduelles                                                     | Doc   | CA-J3-5                   | S4     |
+| CI automatisée : ≥1 test adversarial exécuté à chaque push/PR sur main                                                                                                   | CI    | CA-J3-6, CA-J3-7          | S4     |
+
+### Critères d'acceptation J3 (7 points formatifs)
+
+- CA-J3-1 : ≥5 prompts d'attaque variés documentés
+- CA-J3-2 : Résultat attendu avant/après patch documenté pour chaque prompt
+- CA-J3-3 : Séparation system/user explicite dans le code (délimiteurs ou API messages — jamais concaténation string)
+- CA-J3-4 : Validation post-LLM : parsing JSON strict, schéma vérifié (4 options distinctes + 1 réponse correcte identifiée)
+- CA-J3-5 : Note sécurité 3 sections présente (diagnostic, stratégie, limites résiduelles)
+- CA-J3-6 : ≥1 test adversarial automatisé intégré à la CI, exécuté à chaque push/PR
+- CA-J3-7 : Les 5 tests adversariaux passent post-patch (aucune régression)
+
+### Décision
+
+Le patch J3 est un pré-requis bloquant pour la Release 1 : aucune mise en production sans les 7 critères CA-J3 validés. Assigné à 2 membres en Sprint 4 (parallèle à US-06 et US-21). Aucun SP ajouté au burnup — la sécurité est une obligation qualité, non une feature.
+
+Référence : OWASP LLM01:2025 · Bing Chat (2023) · Air Canada (2024) · AI Act EU
+
+---
+
+## Perturbation J3-bis — RGPD / Conformité données personnelles
+
+La perturbation J3-bis est reçue le mercredi 1er juillet à 14h00, pendant le Sprint 5.
+
+Hugo Petit, utilisateur de la plateforme, formule une demande d'accès à ses données personnelles au titre de l'article 15 du RGPD (Subject Access Request — SAR). La plateforme ne dispose pas encore d'export de données ni de pages légales complètes, ce qui constitue une non-conformité légale.
+
+Référence CNIL : Klarna (2023) — 1,2 M€ d'amende pour des SAR incomplètes ou tardives.
+
+### Impact sur les stories
+
+J3-bis s'attache à **US-12** (export RGPD, COULD → avancé en Sprint 5 car bloquant légalement). La conformité est un pré-requis de la Release 1.
+
+| Livrable J3-bis | Type | Critères | Sprint |
+| --- | --- | --- | --- |
+| Endpoint `GET /api/accounts/me/export/` — JSON et CSV, 6 catégories de données, filtré par `request.user` | Code | CA-J3B-1, CA-J3B-2, CA-J3B-3 | S5 |
+| Bouton « Exporter mes données personnelles » dans la page `/profile` | Frontend | CA-J3B-4 | S5 |
+| Politique de rétention (`docs/legal/politique-retention.md`) — durées, bases légales, procédures Art. 17 | Doc | CA-J3B-5 | S5 |
+| Modèle `DataRequest` — audit trail SAR persisté en base avec hash du fichier | Code | CA-J3B-6 | S5 |
+| Réponse professionnelle à Hugo Petit (`docs/legal/reponse-hugo-petit.md`) | Doc | CA-J3B-7 | S5 |
+| 4 pages légales complètes : Mentions légales, Politique de confidentialité, CGU, Cookies | Frontend | CA-J3B-5 | S5 |
+
+### Critères d'acceptation J3-bis (7 points formatifs)
+
+- CA-J3B-1 : L'endpoint `GET /api/accounts/me/export/` retourne HTTP 200 avec les données structurées
+- CA-J3B-2 : L'export contient ≥6 catégories — profil utilisateur, quiz, réponses, scores, journal SAR, mentions légales
+- CA-J3B-3 : ≥2 formats disponibles — JSON (Art. 20 portabilité) et CSV
+- CA-J3B-4 : Le bouton « Exporter mes données personnelles » est visible et fonctionnel dans l'interface authentifiée
+- CA-J3B-5 : Politique de rétention 3 sections présente (durées, bases légales, procédures Art. 17)
+- CA-J3B-6 : Chaque export déclenche un enregistrement `DataRequest` en base (audit trail)
+- CA-J3B-7 : Réponse professionnelle à Hugo Petit rédigée (accusé de réception, lien de téléchargement, droits Art. 15/16/17/18/20, contact DPO)
+
+### Décision
+
+Le patch J3-bis est un pré-requis légal bloquant pour la Release 1. Assigné à 2 membres en Sprint 5 (parallèle aux correctifs F1–F6). Aucun SP ajouté au burnup — la conformité RGPD est une obligation légale, non une feature.
 
 ---
 
@@ -273,13 +348,13 @@ Une story est terminée quand :
 
 ## Auto-évaluation
 
-| Critère                                                            | Statut | Remarque |
-| ------------------------------------------------------------------- | ------ | -------- |
-| Chaque story est au format INVEST                                   |        |          |
-| Chaque story a un critère d'acceptation en Given/When/Then         |        |          |
-| Les 7 stories MUST couvrent exactement F1–F7                       |        |          |
-| La priorisation MoSCoW est justifiée par les personas              |        |          |
-| La perturbation J1 est intégrée avec impact et décision          |        |          |
-| Les WON'T sont documentés avec une raison explicite                |        |          |
+| Critère                                                                                                                   | Statut | Remarque |
+| -------------------------------------------------------------------------------------------------------------------------- | ------ | -------- |
+| Chaque story est au format INVEST                                                                                          |        |          |
+| Chaque story a un critère d'acceptation en Given/When/Then                                                                |        |          |
+| Les 7 stories MUST couvrent exactement F1–F7                                                                              |        |          |
+| La priorisation MoSCoW est justifiée par les personas                                                                     |        |          |
+| La perturbation J1 est intégrée avec impact et décision                                                                 |        |          |
+| Les WON'T sont documentés avec une raison explicite                                                                       |        |          |
 | Le scope total MUST + SHOULD = 61 SP, dépassant de 5 SP la vélocité cible (56 SP) — dépassement assumé et documenté |        |          |
-| Le document a été relu par l'équipe                              |        |          |
+| Le document a été relu par l'équipe                                                                                     |        |          |

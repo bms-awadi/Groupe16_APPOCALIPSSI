@@ -11,7 +11,14 @@ from rest_framework import status
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
+
+
+class GenerateQuizThrottle(UserRateThrottle):
+    """5 appels/min par utilisateur sur /api/llm/generate-quiz/ (patch J3)."""
+
+    scope = "generate_quiz"
 
 from quizzes.models import Question, Quiz
 from quizzes.serializers import QuizSerializer
@@ -98,6 +105,7 @@ class GenerateQuizView(APIView):
     """Génère un quiz de 10 QCM à partir d'un PDF ou d'un texte collé."""
 
     permission_classes = [IsAuthenticated]
+    throttle_classes = [GenerateQuizThrottle]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     @extend_schema(

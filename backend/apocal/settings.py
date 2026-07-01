@@ -171,6 +171,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Throttling J3 — taux par scope, appliqué uniquement sur /api/llm/generate-quiz/.
+    "DEFAULT_THROTTLE_RATES": {
+        "generate_quiz": "5/min",
+    },
 }
 
 # ----------------------------------------------------------------------------
